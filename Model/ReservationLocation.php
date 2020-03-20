@@ -472,22 +472,33 @@ class ReservationLocation extends ReservationsAppModel {
 			$locations[$key]['approvalUserIds'] =
 				$this->ReservationLocationsApprovalUser->getApprovalUserIdsByLocation($location);
 		}
+
+		// bugfix: https://github.com/NetCommons3/NetCommons3/issues/1537
 		// プライベートルームを除外したルームIDで予約可能かチェック
-		$roomIds = $this->getReadableRoomIdsWithOutPrivate();
+		// $roomIds = $this->getReadableRoomIdsWithOutPrivate();
 		$reservableLocations = [];
 		foreach ($locations as $location) {
-			$reservable = false;
+			// bugfix: https://github.com/NetCommons3/NetCommons3/issues/1537
+			// $this->ReservationLocationReservable->isReservableByLocation()の引数は$locationのみで、$roomIdは必要ない。
+			// $roomIdは、$roomIds = $this->getReadableRoomIdsWithOutPrivate(); から取得しているが、
+			// $this->ReservationLocationReservable->isReservableByLocation()内で同じメソッドを使って、$roomIdsを取得＆処理しているため、当コントローラーで取得する必要ない。
+			// そのため、foreach ($roomIds as $roomId) {}は不要のため見直す。
+			//
+			// $reservable = false;
 			// いずれかのルームで予約できるなら予約可能な施設とする
-			foreach ($roomIds as $roomId) {
-				if ($this->ReservationLocationReservable->isReservableByLocation(
-					$location,
-					$roomId
-				)
-				) {
-					$reservable = true;
-				}
-			}
-			if ($reservable) {
+			// foreach ($roomIds as $roomId) {
+			// 	if ($this->ReservationLocationReservable->isReservableByLocation(
+			// 		$location,
+			// 		$roomId
+			// 	)
+			// 	) {
+			// 		$reservable = true;
+			// 	}
+			// }
+			// if ($reservable) {
+			// 	$reservableLocations[] = $location;
+			// }
+			if ($this->ReservationLocationReservable->isReservableByLocation($location)) {
 				$reservableLocations[] = $location;
 			}
 		}
