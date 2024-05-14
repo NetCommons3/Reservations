@@ -33,9 +33,16 @@ class ReservationWorkflowBehavior extends WorkflowBehavior {
  *
  * @param Model $model Model using this behavior
  * @param array $conditions Model::find conditions default value
+ * @param bool $useCommentCreatable コメントの作成権限でもチェックするかどうか
  * @return array Conditions data
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+ * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
  */
-	public function getWorkflowConditions(Model $model, $conditions = array()) {
+	public function getWorkflowConditions(
+		Model $model,
+		$conditions = array(),
+		$useCommentCreatable = false
+	) {
 		// is_active = 1は常に表示
 		$activeConditions = [
 			$model->alias . '.is_active' => true,
