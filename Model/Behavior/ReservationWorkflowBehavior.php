@@ -95,14 +95,21 @@ class ReservationWorkflowBehavior extends WorkflowBehavior {
  * @param Model $model Model using this behavior
  * @param string $type Type of find operation (all / first / count / neighbors / list / threaded)
  * @param array $query Option fields (conditions / fields / joins / limit / offset / order / page / group / callbacks)
+ * @param bool $useCommentCreatable コメントの作成権限でもチェックするかどうか
  * @return array Conditions data
+ * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
  */
-	public function getWorkflowContents(Model $model, $type, $query = array()) {
+	public function getWorkflowContents(
+		Model $model,
+		$type,
+		$query = array(),
+		$useCommentCreatable = false
+	) {
 		//$this->log(var_export(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5), true), 'debug');
 
 		$query = Hash::merge(array(
 			'recursive' => -1,
-			'conditions' => $this->getWorkflowConditions($model)
+			'conditions' => $this->getWorkflowConditions($model, [], $useCommentCreatable)
 		), $query);
 
 		return $model->find($type, $query);
