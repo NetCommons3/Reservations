@@ -574,7 +574,7 @@ class ReservationActionPlan extends ReservationsAppModel {
 						// 全ての予約を更新
 						$ignoreConditions = [
 							'NOT' => [
-								'ReservationEvent.rrule_id' =>
+								'ReservationEvent.reservation_rrule_id' =>
 									Hash::get($this->data, 'ReservationActionPlan.origin_rrule_id'),
 								'ReservationEvent.recurrence_event_id !=' => 0,
 								'ReservationEvent.exception_event_id !=' => 0,
@@ -910,9 +910,14 @@ class ReservationActionPlan extends ReservationsAppModel {
 				//3. isMyPrivateRoomは、変更後の公開ルームidが「編集者・承認者（＝ログイン者）のプライベート」以外の場合、
 				//仲間の予定はプライベートの時のみ許される子情報なので、これらはcopy対象から外す（stripする）例外処理用。
 				//
-				$newPlan = $this->makeNewGenPlan($data, $status, $createdUserWhenUpd, $isMyPrivateRoom);
-
 				$editRrule = $this->getEditRruleForUpdate($data);
+				$newPlan = $this->makeNewGenPlan(
+					$data,
+					$status,
+					$createdUserWhenUpd,
+					$isMyPrivateRoom,
+					$editRrule
+				);
 
 				$isInfoArray = array($isOriginRepeat, $isTimeMod, $isRepeatMod, $isMyPrivateRoom);
 				$eventId = $this->updatePlan($planParam, $newPlan, $status, $isInfoArray, $editRrule,
