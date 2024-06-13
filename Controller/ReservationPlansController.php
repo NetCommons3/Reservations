@@ -330,6 +330,10 @@ class ReservationPlansController extends ReservationsAppController {
  */
 	public function edit() {
 		if ($this->request->is('post')) {
+			$editRrule = $this->ReservationActionPlan->getEditRruleForUpdate($this->request->data);
+			if ($editRrule == ReservationAppBehavior::CALENDAR_PLAN_EDIT_THIS) {
+				$this->request->data['ReservationActionPlan']['is_repeat'] = '0';
+			}
 			$this->_reservationPost();
 		}
 		// 表示のための処理

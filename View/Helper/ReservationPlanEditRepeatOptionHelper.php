@@ -106,7 +106,7 @@ class ReservationPlanEditRepeatOptionHelper extends AppHelper {
 			'ng-model' => 'editRrule',
 			'ng-init' => "editRrule = '" . $editRrule . "'",
 			'ng-change' => "changeEditRrule(" . Current::read('Frame.id') . ",'" . $firstSibEditLink . "')",
-			'ng-click' => 'sending=true',
+			//'ng-click' => 'sending=true',
 		));
 		if (! $isRecurrence) {
 			$html .= '<p class="help-block text-right"><small>';

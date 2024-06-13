@@ -69,18 +69,22 @@ class ReservationPlanGenerationBehavior extends ReservationAppBehavior {
  * @param string $status status 変更時の施設予約独自の新status
  * @param int $createdUserWhenUpd createdUserWhenUpd
  * @param bool $isMyPrivateRoom isMyPrivateRoom
+ * @param string|int $editRrule 編集ルール（この予約のみ、これ以降に指定した全ての予約、設定した全ての予約）
  * @return int 生成成功時 新しく生成した次世代予定($plan)を返す。失敗時 InternalErrorExceptionを投げる。
  * @throws InternalErrorException
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity)
  */
 	public function makeNewGenPlan(Model $model, $data, $status,
-		$createdUserWhenUpd, $isMyPrivateRoom) {
+		$createdUserWhenUpd, $isMyPrivateRoom, $editRrule) {
 		$action = 'update';
 		$plan = $this->__makeCommonGenPlan($model, $action, $data,
 			$data['ReservationActionPlan']['origin_rrule_id']);
 
 		//keyが同じrrule -> key同一のevents -> eventsの各子供をcopy保存する
 
-		$plan = $this->__copyRruleData($model, $plan, $createdUserWhenUpd);
+		$plan = $this->__copyRruleData($model, $plan, $createdUserWhenUpd, $editRrule);
+
+		$baseDate = str_replace('-', '', $data['ReservationActionPlanForDisp']['detail_start_datetime']);
 
 		unset($plan['new_event_id']);	//念のため変数クリア
 		$effectiveEvents = array();	//有効なeventだけを格納する配列を用意
@@ -88,6 +92,17 @@ class ReservationPlanGenerationBehavior extends ReservationAppBehavior {
 			//exception_event_id int ... 1以上のとき、例外（削除）イベントidを指す」より、
 			//ここの値が１以上の時は、例外（削除）イベントなので、copy対象から外す.
 			if ($event['exception_event_id'] >= 1) {
+				continue;
+			}
+			if ($editRrule == self::CALENDAR_PLAN_EDIT_THIS &&
+					$data['ReservationActionPlan']['origin_event_id'] != $event['id']) {
+				//この予約のみの場合、自分自身の予約以外は無視する。
+				continue;
+			}
+			if ($editRrule == self::CALENDAR_PLAN_EDIT_AFTER &&
+					$data['ReservationActionPlan']['origin_event_id'] != $event['id'] &&
+					$baseDate > $event['start_date']) {
+				//これ以降に指定した全ての予約の場合、基準日より過去のものは無視する。
 				continue;
 			}
 
@@ -123,10 +138,11 @@ class ReservationPlanGenerationBehavior extends ReservationAppBehavior {
  * @param Model $model 実際のモデル名
  * @param array $plan plan
  * @param int $createdUserWhenUpd createdUserWhenUpd
+ * @param string|int $editRrule 編集ルール（この予約のみ、これ以降に指定した全ての予約、設定した全ての予約）
  * @return int 生成成功時 新しい$planを返す。失敗時 InternalErrorExceptionを投げる。
  * @throws InternalErrorException
  */
-	private function __copyRruleData(Model $model, $plan, $createdUserWhenUpd) {
+	private function __copyRruleData(Model $model, $plan, $createdUserWhenUpd, $editRrule) {
 		//ReservationRruleには、status, is_latest, is_activeはない。
 
 		$rruleData = array();
@@ -135,6 +151,9 @@ class ReservationPlanGenerationBehavior extends ReservationAppBehavior {
 		//次世代データの新規登録
 		$originRruleId = $rruleData['ReservationRrule']['id'];
 		$rruleData['ReservationRrule']['id'] = null;
+		if ($editRrule == self::CALENDAR_PLAN_EDIT_THIS) {
+			$rruleData['ReservationRrule']['rrule'] = '';
+		}
 
 		//作成者・作成日は原則、元予定のデータを引き継ぐ、、、が！例外がある。
 		//例外追加１）
