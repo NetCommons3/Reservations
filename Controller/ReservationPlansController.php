@@ -288,6 +288,11 @@ class ReservationPlansController extends ReservationsAppController {
 	public function add() {
 		// 施設情報
 		$locations = $this->ReservationLocation->getReservableLocations();
+
+		// openTextの追加
+		$openText = new ReservationLocationOpenText();
+		$locations = $openText->openTextAdd($locations);
+
 		$locations = $this->__mergeApprovalUserName($locations);
 		$this->set('locations', $locations);
 
@@ -347,6 +352,11 @@ class ReservationPlansController extends ReservationsAppController {
 
 		// 施設情報
 		$locations = $this->ReservationLocation->getReservableLocations();
+
+		// openTextの追加
+		$openText = new ReservationLocationOpenText();
+		$locations = $openText->openTextAdd($locations);
+
 		$locations = $this->__mergeApprovalUserName($locations);
 		$this->set('locations', $locations);
 

@@ -120,6 +120,11 @@ class ReservationFrameSettingsController extends ReservationsAppController {
 			$this->view = 'nolocation';
 			return;
 		}
+
+		// openTextの追加
+		$openText = new ReservationLocationOpenText();
+		$locations = $openText->openTextAdd($locations);
+
 		$this->set('locations', $locations);
 
 		// 設定情報取り出し
