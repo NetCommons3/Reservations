@@ -131,6 +131,11 @@ class ReservationImportController extends ReservationsAppController {
 	public function edit() {
 		// 施設情報
 		$locations = $this->ReservationLocation->getReservableLocations();
+
+		// openTextの追加
+		$openText = new ReservationLocationOpenText();
+		$locations = $openText->openTextAdd($locations);
+
 		$this->set('locations', $locations);
 
 		$frameId = Current::read('Frame.id');

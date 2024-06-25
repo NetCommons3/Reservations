@@ -78,4 +78,22 @@ class ReservationLocationOpenText {
 		}
 		return $ret;
 	}
+
+/**
+ * openTextをセットした施設データを返す
+ *
+ * @param array $reservationLocations 施設データ
+ * @return array
+ */
+	public function openTextAdd($reservationLocations) {
+		foreach ($reservationLocations as $key => $value) {
+			if (array_key_exists('time_table', $value['ReservationLocation']) &&
+					array_key_exists('start_time', $value['ReservationLocation']) &&
+					array_key_exists('end_time', $value['ReservationLocation']) &&
+					array_key_exists('timezone', $value['ReservationLocation'])) {
+				$reservationLocations[$key]['ReservationLocation']['openText'] = $this->openText($value);
+			}
+		}
+		return $reservationLocations;
+	}
 }

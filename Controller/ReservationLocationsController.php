@@ -94,6 +94,11 @@ class ReservationLocationsController extends ReservationsAppController {
 			'ReservationLocation' => $query
 		];
 		$reservationLocations = $this->Paginator->paginate('ReservationLocation');
+
+		// openTextの追加
+		$openText = new ReservationLocationOpenText();
+		$reservationLocations = $openText->openTextAdd($reservationLocations);
+
 		$this->set('reservationLocations', $reservationLocations);
 	}
 
@@ -377,6 +382,11 @@ class ReservationLocationsController extends ReservationsAppController {
 				'ReservationLocation' => $query
 			];
 			$reservationLocations = $this->Paginator->paginate('ReservationLocation');
+
+			// openTextの追加
+			$openText = new ReservationLocationOpenText();
+			$reservationLocations = $openText->openTextAdd($reservationLocations);
+
 			$this->set('reservationLocations', $reservationLocations);
 
 			$this->request->data['ReservationLocations'] = $reservationLocations;
