@@ -189,32 +189,6 @@ class ReservationLocation extends ReservationsAppModel {
 	}
 
 /**
- * Called after each find operation. Can be used to modify any results returned by find().
- * Return value should be the (modified) results.
- *
- * @param mixed $results The results of the find operation
- * @param bool $primary Whether this model is being queried directly (vs. being queried as an association)
- * @return mixed Result of the find operation
- * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
- * @link http://book.cakephp.org/2.0/en/models/callback-methods.html#afterfind
- */
-	public function afterFind($results, $primary = false) {
-		if (!isset($results[0][$this->alias])) {
-			return $results;
-		}
-		foreach ($results as $key => $value) {
-			if (array_key_exists('time_table', $results[$key][$this->alias]) &&
-					array_key_exists('start_time', $results[$key][$this->alias]) &&
-					array_key_exists('end_time', $results[$key][$this->alias]) &&
-					array_key_exists('timezone', $results[$key][$this->alias])) {
-				$openText = new ReservationLocationOpenText();
-				$results[$key][$this->alias]['openText'] = $openText->openText($value);
-			}
-		}
-		return $results;
-	}
-
-/**
  * Called before each save operation, after validation. Return a non-true result
  * to halt the save.
  *
